@@ -6,7 +6,10 @@ const app=express();
 app.use(express.json());
 app.use(cors());
 const {connectDB}=require('./db/db.connect')
-const {Video}=require("./models/video.models")
+const {Video}=require("./models/video.models");
+const {User}=require("./models/user.models");
+const jwt=require('jsonwebtoken');
+const bcrypt=require('bcrypt');
 
 connectDB().then(()=>console.log('Database connected')).then(()=>{
     app.listen(port,async(req,resp)=>{
@@ -46,6 +49,20 @@ app.post("/video",async(req,resp)=>{
         const video=new Video(req.body);
         await video.save();
         resp.json(video);
+    }
+    catch(error){
+        throw Error(error);
+    }
+})
+
+//post user
+app.post("/add-user",async(req,resp)=>{
+    try{
+        const{username,email,password}=req.body;
+        const bcryptPassword=await bcrypt.hash(password,10);
+        const user=new User({username,email,password:bcryptPassword});
+        await user.save();
+        resp.status(201).json({message:'User saved successfully',user});
     }
     catch(error){
         throw Error(error);
