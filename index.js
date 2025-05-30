@@ -80,7 +80,7 @@ app.post("/user/login",async(req,resp)=>{
             if(!isMatch){
                 resp.status(404).json({message:"Invalid Credentials"});
             }
-            const token=jwt.sign({id:user._id,username:user.username},jwt_key,{expiresIn:"24h"})
+            const token=jwt.sign({id:user._id,username:user.username,emai:user.email},jwt_key,{expiresIn:"24h"})
             resp.send(token);
         }
         else{
