@@ -10,6 +10,7 @@ const {Video}=require("./models/video.models");
 const {User}=require("./models/user.models");
 const jwt=require('jsonwebtoken');
 const bcrypt=require('bcrypt');
+const jwt_key=process.env.jwt_key
 
 connectDB().then(()=>console.log('Database connected')).then(()=>{
     app.listen(port,async(req,resp)=>{
@@ -63,6 +64,28 @@ app.post("/add-user",async(req,resp)=>{
         const user=new User({username,email,password:bcryptPassword});
         await user.save();
         resp.status(201).json({message:'User saved successfully',user});
+    }
+    catch(error){
+        throw Error(error);
+    }
+})
+
+//user login api
+app.post("/user/login",async(req,resp)=>{
+    try{
+        const{email,password}=req.body;
+        const user=await User.findOne({email})
+        if(user){
+            const isMatch=await bcrypt.compare(password,user.password);
+            if(!isMatch){
+                resp.status(404).json({message:"Invalid Credentials"});
+            }
+            const token=jwt.sign({id:user._id,username:user.username},jwt_key,{expiresIn:"24h"})
+            resp.send(token);
+        }
+        else{
+            resp.status(404).json({message:"Invalid Credentials"})
+        }
     }
     catch(error){
         throw Error(error);
