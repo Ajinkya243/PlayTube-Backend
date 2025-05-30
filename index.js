@@ -59,9 +59,9 @@ app.post("/video",async(req,resp)=>{
 //post user
 app.post("/add-user",async(req,resp)=>{
     try{
-        const{username,email,password}=req.body;
+        const{userName,email,password}=req.body;
         const bcryptPassword=await bcrypt.hash(password,10);
-        const user=new User({username,email,password:bcryptPassword});
+        const user=new User({userName,email,password:bcryptPassword});
         await user.save();
         resp.status(201).json({message:'User saved successfully',user});
     }
@@ -80,7 +80,7 @@ app.post("/user/login",async(req,resp)=>{
             if(!isMatch){
                 resp.status(404).json({message:"Invalid Credentials"});
             }
-            const token=jwt.sign({id:user._id,username:user.username,emai:user.email},jwt_key,{expiresIn:"24h"})
+            const token=jwt.sign({id:user._id,userName:user.userName,emai:user.email},jwt_key,{expiresIn:"24h"})
             resp.send(token);
         }
         else{
