@@ -91,3 +91,34 @@ app.post("/user/login",async(req,resp)=>{
         throw Error(error);
     }
 })
+
+// token verify api
+const verifyJwt=(req,resp,next)=>{
+    const authHeader=req.headers['authorization'];
+    if(!authHeader){
+       return resp.status(401).json({message:"No token provided"})
+    }
+    const token=req.headers['authorization'].split(' ')[1];
+    if(!token){
+        return resp.status(401).json({message:'Token format invalid'})
+    }
+    try{
+        const user=jwt.verify(token,jwt_key);
+    req.user=user;
+    next();
+    }
+    catch(error){
+        return resp.status(403).json({ message: "Invalid token" })
+    }
+    
+}
+
+app.get("/verify/token",async(req,resp)=>{
+    try{
+        const user=req.user;
+        resp.status(200).json(user);
+    }
+    catch(error){
+        throw Error(error);
+    }
+})
